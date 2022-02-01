@@ -1,6 +1,7 @@
+import json
 import logging
 import azure.functions as func
-from shared_code.create_json import create_json
+from shared_code.json_module import getJsonDict, json_serial
 from shared_code.DB import MySQL
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -14,18 +15,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     
     mysql = MySQL
 
-    data = mysql.select_all(table)
+    column, row = mysql.select_all(table)
 
-    jsons = create_json(data)
+    json_dict = getJsonDict(column, row)
 
-    for json in jsons:
-        json_data = {
-            "*studentlist*":[
-                json
-            ]
-        }
+    with open('/tmp/student.json','w'):
+        json.dumps({"*studnet_list*":[json_dict]}, indent=4, default=json_serial, ensure_ascii=False)
 
-    with open('./tmp/student.json','w') as f:
-        json.dump(json_data, f, ensure_ascii=False)
-
-    return func.HttpResponse('./tmp/student.json', status_code=200)
+    return func.HttpResponse('/tmp/student.json', status_code=200)

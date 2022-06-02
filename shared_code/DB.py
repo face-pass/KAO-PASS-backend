@@ -63,12 +63,15 @@ class MySQL():
 
     def select_all(self, table):
         self.cursor.execute(f"SELECT * FROM {table}")
-        data = self.cursor.fetchall()
+        column = self.cursor.fetchall()
+
+        self.cursor.execute("SHOW COLUMNS FROM uchida")
+        row = self.cursor.fetchall()
 
         self.cnx.commit()
         self.cnx.close()
 
-        return data
+        return column, row
 
     def getProperty(self, table):
         if not table:
